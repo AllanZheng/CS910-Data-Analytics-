@@ -23,6 +23,7 @@ def simpleSMO(data,label,C,toler,maxIter):
     labelMat = mat(label).transpose()
     m,n = shape(data)
     alphas = mat(zeros((m,1)))
+    iter = 0
     while (iter < maxIter):
         changed = 0
         for i in range(m):
@@ -53,9 +54,26 @@ def simpleSMO(data,label,C,toler,maxIter):
                 if(abs(alphas[j]-oldj<0.00001)):
                     print("not changed enough")
                     continue
+                alphas[i] = alphas[i] + labelMat[j]*labelMat[i]*(oldj-alphas[j])
+                b1 = b - Ei -labelMat[i]*(alphas[i] - oldi)*data[i,:]*data[i,:].T - labelMat[j]*(alphas[j] - oldj)*data[i,:]*data[j,:].T
+                b2 = b - Ej -labelMat[i]*(alphas[i] - oldi)*data[i,:]*data[j,:].T - labelMat[j]*(alphas[j] - oldj)*data[j,:]*data[j,:].T
+                if (0 < alphas[i]) and (C>alphas[i]):
+                    b = b1
+                elif(0 < alphas[j]) and (C>alphas[j]):
+                    b = b2
+                else:
+                    b = (b1 + b2)/2.0
+                changed += 1
+                print('iter: % i: %d, pairs chaned %d ' % (iter , i , changed))
+            if(changed == 0):
+                iter += 1
+            else:
+                iter = 0
+            print("current iteration :%d" % iter)
+        return b,alphas
 
-            if (alp > 0):
+def calcWs(alphas,dataArr,classLabels):
 
-                return
-
-            return
+     X = mat(dataArr)
+     labelMat = mat(classLabels).transpose()
+     m,n = shape(X)
